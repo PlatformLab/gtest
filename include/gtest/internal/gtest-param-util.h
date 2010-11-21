@@ -286,8 +286,9 @@ class ValuesInIteratorRangeGenerator : public ParamGeneratorInterface<T> {
    public:
     Iterator(const ParamGeneratorInterface<T>* base,
              typename ContainerType::const_iterator iterator)
-        : base_(base), iterator_(iterator) {}
+        : base_(base), iterator_(iterator), value_() {}
     virtual ~Iterator() {}
+    void operator=(const Iterator& other);
 
     virtual const ParamGeneratorInterface<T>* BaseGenerator() const {
       return base_;
@@ -327,7 +328,8 @@ class ValuesInIteratorRangeGenerator : public ParamGeneratorInterface<T> {
           // emitted by gcc when supplied with the -Wextra option.
         : ParamIteratorInterface<T>(),
           base_(other.base_),
-          iterator_(other.iterator_) {}
+          iterator_(other.iterator_),
+          value_() {}
 
     const ParamGeneratorInterface<T>* const base_;
     typename ContainerType::const_iterator iterator_;
@@ -451,7 +453,7 @@ class ParameterizedTestCaseInfo : public ParameterizedTestCaseInfoBase {
   typedef ParamGenerator<ParamType>(GeneratorCreationFunc)();
 
   explicit ParameterizedTestCaseInfo(const char* name)
-      : test_case_name_(name) {}
+      : test_case_name_(name), tests_(), instantiations_() {}
 
   // Test case base name for display purposes.
   virtual const String& GetTestCaseName() const { return test_case_name_; }
@@ -556,7 +558,7 @@ class ParameterizedTestCaseInfo : public ParameterizedTestCaseInfoBase {
 // descriptors.
 class ParameterizedTestCaseRegistry {
  public:
-  ParameterizedTestCaseRegistry() {}
+  ParameterizedTestCaseRegistry() : test_case_infos_() {}
   ~ParameterizedTestCaseRegistry() {
     for (TestCaseInfoContainer::iterator it = test_case_infos_.begin();
          it != test_case_infos_.end(); ++it) {

@@ -268,7 +268,7 @@ class GTEST_API_ AssertionResult {
   // Used in EXPECT_TRUE/FALSE(assertion_result).
   AssertionResult(const AssertionResult& other);
   // Used in the EXPECT_TRUE/FALSE(bool_expression).
-  explicit AssertionResult(bool success) : success_(success) {}
+  explicit AssertionResult(bool success) : success_(success), message_() {}
 
   // Returns true iff the assertion succeeded.
   operator bool() const { return success_; }  // NOLINT

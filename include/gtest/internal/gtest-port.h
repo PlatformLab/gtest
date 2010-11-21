@@ -780,16 +780,52 @@ class GTEST_API_ RE {
  public:
   // A copy constructor is required by the Standard to initialize object
   // references from r-values.
-  RE(const RE& other) { Init(other.pattern()); }
+  RE(const RE& other)
+    : pattern_()
+    , is_valid_()
+#if GTEST_USES_POSIX_RE
+    , full_regex_()
+    , partial_regex_()
+#else
+    , full_pattern_()
+#endif
+  { Init(other.pattern()); }
 
   // Constructs an RE from a string.
-  RE(const ::std::string& regex) { Init(regex.c_str()); }  // NOLINT
+  RE(const ::std::string& regex)
+    : pattern_()
+    , is_valid_()
+#if GTEST_USES_POSIX_RE
+    , full_regex_()
+    , partial_regex_()
+#else
+    , full_pattern_()
+#endif
+  { Init(regex.c_str()); }  // NOLINT
 
 #if GTEST_HAS_GLOBAL_STRING
-  RE(const ::string& regex) { Init(regex.c_str()); }  // NOLINT
+  RE(const ::string& regex)
+    : pattern_()
+    , is_valid_()
+#if GTEST_USES_POSIX_RE
+    , full_regex_()
+    , partial_regex_()
+#else
+    , full_pattern_()
+#endif
+  { Init(regex.c_str()); }  // NOLINT
 #endif  // GTEST_HAS_GLOBAL_STRING
 
-  RE(const char* regex) { Init(regex); }  // NOLINT
+  RE(const char* regex)
+    : pattern_()
+    , is_valid_()
+#if GTEST_USES_POSIX_RE
+    , full_regex_()
+    , partial_regex_()
+#else
+    , full_pattern_()
+#endif
+  { Init(regex); }  // NOLINT
   ~RE();
 
   // Returns the string representation of the regex.
@@ -1146,6 +1182,11 @@ class ThreadWithParam : public ThreadWithParamBase {
 // To create a dynamic mutex, just define an object of type Mutex.
 class MutexBase {
  public:
+  MutexBase() : mutex_(), owner_() {}
+  MutexBase(pthread_t owner) : mutex_(), owner_(owner) {
+    pthread_mutex_init(&mutex_, NULL);
+  }
+  virtual ~MutexBase() {}
   // Acquires this mutex.
   void Lock() {
     GTEST_CHECK_POSIX_SUCCESS_(pthread_mutex_lock(&mutex_));
@@ -1184,7 +1225,7 @@ class MutexBase {
 
 // Defines and statically (i.e. at link time) initializes a static mutex.
 #define GTEST_DEFINE_STATIC_MUTEX_(mutex) \
-    ::testing::internal::MutexBase mutex = { PTHREAD_MUTEX_INITIALIZER, 0 }
+    ::testing::internal::MutexBase mutex(0)
 
 // The Mutex class can only be used for mutexes created at runtime. It
 // shares its API with MutexBase otherwise.
@@ -1404,6 +1445,7 @@ GTEST_API_ size_t GetThreadCount();
 
 template <bool bool_value>
 struct bool_constant {
+  virtual ~bool_constant() {}
   typedef bool_constant<bool_value> type;
   static const bool value = bool_value;
 };

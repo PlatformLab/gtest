@@ -192,7 +192,9 @@ class GTEST_API_ String {
   String() : c_str_(NULL), length_(0) {}
 
   // Constructs a String by cloning a 0-terminated C string.
-  String(const char* a_c_str) {  // NOLINT
+  String(const char* a_c_str)
+      : c_str_(), length_()
+  {  // NOLINT
     if (a_c_str == NULL) {
       c_str_ = NULL;
       length_ = 0;
@@ -205,7 +207,9 @@ class GTEST_API_ String {
   // buffer.  E.g. String("hello", 3) creates the string "hel",
   // String("a\0bcd", 4) creates "a\0bc", String(NULL, 0) creates "",
   // and String(NULL, 1) results in access violation.
-  String(const char* buffer, size_t a_length) {
+  String(const char* buffer, size_t a_length)
+      : c_str_(), length_()
+  {
     ConstructNonNull(buffer, a_length);
   }
 
@@ -223,7 +227,9 @@ class GTEST_API_ String {
   // Converting a ::std::string or ::string containing an embedded NUL
   // character to a String will result in the prefix up to the first
   // NUL character.
-  String(const ::std::string& str) {
+  String(const ::std::string& str)
+      : c_str_(), length_()
+  {
     ConstructNonNull(str.c_str(), str.length());
   }
 
