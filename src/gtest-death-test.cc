@@ -757,7 +757,7 @@ class NoExecDeathTest : public ForkingDeathTest {
 // straightforward fork, with a simple pipe to transmit the status byte.
 DeathTest::TestRole NoExecDeathTest::AssumeRole() {
   const size_t thread_count = GetThreadCount();
-  if (thread_count != 1) {
+  if (thread_count > 1) {
     GTEST_LOG_(WARNING) << DeathTestThreadWarning(thread_count);
   }
 
