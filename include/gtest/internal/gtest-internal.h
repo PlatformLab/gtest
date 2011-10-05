@@ -356,7 +356,11 @@ class FloatingPoint {
   // around may change its bits, although the new value is guaranteed
   // to be also a NAN.  Therefore, don't expect this constructor to
   // preserve the bits in x when x is a NAN.
-  explicit FloatingPoint(const RawType& x) { u_.value_ = x; }
+  explicit FloatingPoint(const RawType& x)
+    : u_()
+  {
+    u_.value_ = x;
+  }
 
   // Static methods
 
