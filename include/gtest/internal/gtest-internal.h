@@ -99,6 +99,7 @@ inline void GTestStreamToHelper(std::ostream* os, const T& val) {
 
 class ProtocolMessage;
 namespace proto2 { class Message; }
+namespace google { namespace protobuf { class Message; } }
 
 namespace testing {
 
@@ -898,13 +899,14 @@ template <typename From, typename To>
 const bool ImplicitlyConvertible<From, To>::value;
 
 // IsAProtocolMessage<T>::value is a compile-time bool constant that's
-// true iff T is type ProtocolMessage, proto2::Message, or a subclass
-// of those.
+// true iff T is type ProtocolMessage, proto2::Message,
+// google::protobuf::Message, or a subclass of those.
 template <typename T>
 struct IsAProtocolMessage
     : public bool_constant<
   ImplicitlyConvertible<const T*, const ::ProtocolMessage*>::value ||
-  ImplicitlyConvertible<const T*, const ::proto2::Message*>::value> {
+  ImplicitlyConvertible<const T*, const ::proto2::Message*>::value ||
+  ImplicitlyConvertible<const T*, const ::google::protobuf::Message*>::value> {
 };
 
 // When the compiler sees expression IsContainerTest<C>(0), the first
