@@ -206,6 +206,91 @@
     (__GNUC__*10000 + __GNUC_MINOR__*100 + __GNUC_PATCHLEVEL__)
 #endif  // __GNUC__
 
+// Macros for disabling Microsoft Visual C++ warnings.
+//
+//   GTEST_DISABLE_MSC_WARNINGS_PUSH_(4800 4385)
+//   /* code that triggers warnings C4800 and C4385 */
+//   GTEST_DISABLE_MSC_WARNINGS_POP_()
+#if _MSC_VER >= 1500
+# define GTEST_DISABLE_MSC_WARNINGS_PUSH_(warnings) \
+    __pragma(warning(push))                        \
+    __pragma(warning(disable: warnings))
+# define GTEST_DISABLE_MSC_WARNINGS_POP_()          \
+    __pragma(warning(pop))
+#else
+// Older versions of MSVC don't have __pragma.
+# define GTEST_DISABLE_MSC_WARNINGS_PUSH_(warnings)
+# define GTEST_DISABLE_MSC_WARNINGS_POP_()
+#endif
+
+#ifndef GTEST_LANG_CXX11
+// gcc and clang define __GXX_EXPERIMENTAL_CXX0X__ when
+// -std={c,gnu}++{0x,11} is passed.  The C++11 standard specifies a
+// value for __cplusplus, and recent versions of clang, gcc, and
+// probably other compilers set that too in C++11 mode.
+# if __GXX_EXPERIMENTAL_CXX0X__ || __cplusplus >= 201103L
+// Compiling in at least C++11 mode.
+#  define GTEST_LANG_CXX11 1
+# else
+#  define GTEST_LANG_CXX11 0
+# endif
+#endif
+
+// Distinct from C++11 language support, some environments don't provide
+// proper C++11 library support. Notably, it's possible to build in
+// C++11 mode when targeting Mac OS X 10.6, which has an old libstdc++
+// with no C++11 support.
+//
+// libstdc++ has sufficient C++11 support as of GCC 4.6.0, __GLIBCXX__
+// 20110325, but maintenance releases in the 4.4 and 4.5 series followed
+// this date, so check for those versions by their date stamps.
+// https://gcc.gnu.org/onlinedocs/libstdc++/manual/abi.html#abi.versioning
+#if GTEST_LANG_CXX11 && \
+    (!defined(__GLIBCXX__) || ( \
+        __GLIBCXX__ >= 20110325ul &&  /* GCC >= 4.6.0 */ \
+        /* Blacklist of patch releases of older branches: */ \
+        __GLIBCXX__ != 20110416ul &&  /* GCC 4.4.6 */ \
+        __GLIBCXX__ != 20120313ul &&  /* GCC 4.4.7 */ \
+        __GLIBCXX__ != 20110428ul &&  /* GCC 4.5.3 */ \
+        __GLIBCXX__ != 20120702ul))   /* GCC 4.5.4 */
+# define GTEST_STDLIB_CXX11 1
+#endif
+
+// Only use C++11 library features if the library provides them.
+#if GTEST_STDLIB_CXX11
+# define GTEST_HAS_STD_BEGIN_AND_END_ 1
+# define GTEST_HAS_STD_FORWARD_LIST_ 1
+# define GTEST_HAS_STD_FUNCTION_ 1
+# define GTEST_HAS_STD_INITIALIZER_LIST_ 1
+# define GTEST_HAS_STD_MOVE_ 1
+# define GTEST_HAS_STD_UNIQUE_PTR_ 1
+# define GTEST_HAS_STD_SHARED_PTR_ 1
+#endif
+
+// C++11 specifies that <tuple> provides std::tuple.
+// Some platforms still might not have it, however.
+#if GTEST_LANG_CXX11
+# define GTEST_HAS_STD_TUPLE_ 1
+# if defined(__clang__)
+// Inspired by http://clang.llvm.org/docs/LanguageExtensions.html#__has_include
+#  if defined(__has_include) && !__has_include(<tuple>)
+#   undef GTEST_HAS_STD_TUPLE_
+#  endif
+# elif defined(_MSC_VER)
+// Inspired by boost/config/stdlib/dinkumware.hpp
+#  if defined(_CPPLIB_VER) && _CPPLIB_VER < 520
+#   undef GTEST_HAS_STD_TUPLE_
+#  endif
+# elif defined(__GLIBCXX__)
+// Inspired by boost/config/stdlib/libstdcpp3.hpp,
+// http://gcc.gnu.org/gcc-4.2/changes.html and
+// http://gcc.gnu.org/onlinedocs/libstdc++/manual/bk01pt01ch01.html#manual.intro.status.standard.200x
+#  if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 2)
+#   undef GTEST_HAS_STD_TUPLE_
+#  endif
+# endif
+#endif
+
 // Determines the platform on which Google Test is compiled.
 #ifdef __CYGWIN__
 #define GTEST_OS_CYGWIN 1

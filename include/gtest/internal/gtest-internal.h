@@ -925,6 +925,13 @@ typedef char IsNotContainer;
 template <class C>
 IsNotContainer IsContainerTest(...) { return '\0'; }
 
+// EnableIf<condition>::type is void when 'Cond' is true, and
+// undefined when 'Cond' is false.  To use SFINAE to make a function
+// overload only apply when a particular expression is true, add
+// "typename EnableIf<expression>::type* = 0" as the last parameter.
+template<bool> struct EnableIf;
+template<> struct EnableIf<true> { typedef void type; };  // NOLINT
+
 // Utilities for native arrays.
 
 // ArrayEq() compares two k-dimensional native arrays using the
