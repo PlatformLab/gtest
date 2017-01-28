@@ -712,7 +712,9 @@ struct TuplePrefixPrinter {
   static void PrintPrefixTo(const Tuple& t, ::std::ostream* os) {
     TuplePrefixPrinter<N - 1>::PrintPrefixTo(t, os);
     *os << ", ";
+#pragma GCC diagnostic ignored "-Wconversion"
     UniversalPrinter<typename ::std::tr1::tuple_element<N - 1, Tuple>::type>
+#pragma GCC diagnostic warning "-Wconversion"
         ::Print(::std::tr1::get<N - 1>(t), os);
   }
 
