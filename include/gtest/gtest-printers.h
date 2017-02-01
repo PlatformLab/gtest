@@ -714,8 +714,8 @@ struct TuplePrefixPrinter {
     *os << ", ";
 #pragma GCC diagnostic ignored "-Wconversion"
     UniversalPrinter<typename ::std::tr1::tuple_element<N - 1, Tuple>::type>
-#pragma GCC diagnostic warning "-Wconversion"
         ::Print(::std::tr1::get<N - 1>(t), os);
+#pragma GCC diagnostic warning "-Wconversion"
   }
 
   // Tersely prints the first N fields of a tuple to a string vector,
